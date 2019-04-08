@@ -1,0 +1,1 @@
+redis-cli.exe -h 10.10.10.220 -p 7519 -a open@7518.cc
