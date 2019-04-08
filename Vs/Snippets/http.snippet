@@ -4,7 +4,7 @@
 		<Header>
 			<Title>http</Title>
 			<Shortcut>http</Shortcut>
-			<Description>一般处理程序接口</Description>
+			<Description>webapi请求</Description>
 			<Author>iwenli</Author>
 			<SnippetTypes>
 				<SnippetType>Expansion</SnippetType>
@@ -37,7 +37,8 @@
 				var _id = context.GetQueryParam("id",0);
 				var _result = _service.GetModel(_id);
 				return ResultData(_result);
-			}]]>
+			}
+			]]>
 			</Code>
 		</Snippet>
 	</CodeSnippet>

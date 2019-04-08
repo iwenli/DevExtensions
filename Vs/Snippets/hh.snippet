@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>hh</Title>
+			<Shortcut>hh</Shortcut>
+			<Description>webapi请求处理工厂</Description>
+			<Author>iwenli</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal Editable="true">
+					<ID>ApiFactory</ID>
+					<ToolTip>工厂名</ToolTip>
+					<Default>ApiFactory</Default>
+				</Literal>
+				<Literal Editable="true">
+					<ID>ResponseBase</ID>
+					<ToolTip>请求响应基类</ToolTip>
+					<Function>ResponseBase()</Function>
+					<Default>ResponseBase</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[
+			/// <summary>
+	/// webapi请求处理工厂
+	/// </summary>
+	public class $ApiFactory$ : $ResponseBase$, IHttpHandlerFactory
+	{
+		const string m_ProjectName = "$end$";
+		public IHttpHandler GetHandler(HttpContext context, string requestType, string url, string pathTranslated)
+		{
+			var _path = Regex.Match(url, @"\/(.*?)\.api", RegexOptions.IgnoreCase);
+			var _classPath = m_ProjectName + "." + _path.Groups[1].Value.Replace('/', '.');
+
+			var _handlerType = BuildManager.GetType(_classPath, false, true);
+			if (_handlerType != null)
+			{
+				var handler = Activator.CreateInstance(_handlerType) as ApiBase;
+				return handler;
+			}
+			context.Response.ContentType = "application/json;charset=UTF-8";
+			context.Response.Write(ResultError("Request path error,Current request path is:" + url, "path"));
+			context.Response.End();
+			return null;
+		}
+
+		public void ReleaseHandler(IHttpHandler handler) { }
+	}
+			]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>
