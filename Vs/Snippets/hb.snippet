@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>hb</Title>
+			<Shortcut>hb</Shortcut>
+			<Description>webApi请求基类</Description>
+			<Author>iwenli</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal Editable="true">
+					<ID>ApiBase</ID>
+					<ToolTip>基类名称</ToolTip>
+					<Default>ApiBase</Default>
+				</Literal>
+				<Literal Editable="true">
+					<ID>ResponseBase</ID>
+					<ToolTip>请求响应基类</ToolTip>
+					<Function>ResponseBase()</Function>
+					<Default>ResponseBase</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[
+			/// <summary>
+	/// API请求基类
+	/// 
+	/// 网关全局异常码说明 [自定义异常码必须不能小于等于 -10000 ]：
+	/// -10000 ： 严重异常[表示该接口当前不可用],固定返回错误提示【服务中断，请稍后重试！】
+	/// -10001 ： 应用异常[包含异常信息],返回错误消息为【导致异常的提示】
+	/// -10002 ： 自定义异常,一般为业务参数违规,会返回当前违规信息
+	/// -10003 ： 数据服务器断开链接,极少出现,重新提交当前请求即可,固定返回错误提示【服务器网络抖动,请重试】
+	/// 
+	/// -10010 ： 请求路径异常
+	/// 
+	/// -10020 ： 授权失败
+	/// 
+	/// -10040 ： 结算台参数校验失败
+	/// 
+	/// -10050 ： 签名验证错误
+	/// 
+	/// </summary>
+	public class $ApiBase$ : $ResponseBase$, IHttpHandler, IRequiresSessionState
+	{ 
+		public virtual void ProcessRequest(HttpContext context)
+		{
+			try
+			{
+				Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(LanguageName);
+
+				string methodName = context.Request.Url.Segments[context.Request.Url.Segments.Length - 1];
+				MethodInfo _method = this.GetType().GetMethod(methodName, BindingFlags.Instance
+						| BindingFlags.IgnoreCase
+						| BindingFlags.Public);
+				if (_method == null)
+				{
+					//context.Write(ResultError("请求的处理函数不存在", -10010, null, "method"));
+					context.Write(ResultError(Language.ActionLost, -10010, null, "method"));
+					return;
+				}
+				//请求验证
+				var _returnInfo = "";
+				if (!CheckSign(context, ref _returnInfo))
+				{
+					this.AppendErrorLog(context.DetailLog(), new Exception(_returnInfo));
+					context.Write(ResultError(_returnInfo, -10050, null, "checksign"));
+					return;
+				}
+
+				//权鉴判断
+				var _authObj = _method.GetCustomAttribute<AuthAttribute>() ?? new AuthAttribute();
+
+				if (_authObj.NeedLogin && !IsAuth(Token))
+				{
+					//context.Write(ResultError("您的授权信息错误或已过期", -10020, null, "auth"));
+					context.Write(ResultError(Language.AuthError, -10020, null, "auth"));
+					return;
+				}
+
+				var _fun = (Func<HttpContext, string>)_method.CreateDelegate(typeof(Func<HttpContext, string>), this);
+				var _jsonStr = _fun(context);
+				context.Write(_jsonStr);
+			}
+			catch (SqlSugar.SqlSugarException ex)
+			{
+				LogService.AppendErrorLog(typeof(System.Data.IDbConnection), context.DetailLog(), ex);
+				context.Write(ResultError(Language.NetworkError, -10003, null, "method"));
+				//context.Write(ResultError("服务器网络抖动,请重试", -10003, null, "method"));
+			}
+			catch (TxMethodException ex)
+			{
+				LogService.AppendErrorLog(typeof(ApiBase), context.DetailLog(), ex);
+				context.Write(ResultError((ex.InnerException ?? ex)?.Message, -10002, null, "method"));
+			}
+			catch (Exception ex)
+			{
+				LogService.AppendErrorLog(typeof(ApiBase), context.DetailLog(), ex);
+				context.Write(ResultError((ex.InnerException ?? ex)?.Message, -10001, null, "service"));
+			}
+		}
+
+		/// <summary>
+		/// 权鉴
+		/// </summary>
+		/// <param name="token"></param>
+		/// <returns></returns>
+		protected virtual bool IsAuth(string token)
+		{
+			return false;
+		}
+
+		public bool IsReusable => false;
+
+		public bool CheckSign(HttpContext context, ref string returnInfo)
+		{
+			$end$
+		}
+	}
+			]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>rb</Title>
+			<Shortcut>rb</Shortcut>
+			<Description>请求相应基类</Description>
+			<Author>iwenli</Author>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal Editable="true">
+					<ID>ResponseBase</ID>
+					<ToolTip>请求响应基类</ToolTip>
+					<Function>ResponseBase()</Function>
+					<Default>ResponseBase</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp"><![CDATA[
+			/// <summary>
+	/// 输出基类
+	/// </summary>
+	public abstract class $ResponseBase$
+	{
+		/// <summary>
+		/// 返回时间戳
+		/// </summary>
+		/// <param name="isMillisecond">是否精确到毫秒</param>
+		/// <returns></returns>
+		protected long CurrentDateTimeUnix => DateTime.Now.ConvertToTimeStamp();
+
+		/// <summary>
+		/// 返回错误信息
+		/// </summary>
+		/// <param name="error">错误信息</param>
+		/// <param name="type">请求类型</param>
+		/// <returns></returns>
+		protected string ResultError(string error, string type)
+		{
+			return (new { success = false, type = type, msg = error, ts = CurrentDateTimeUnix }).ToJson();
+		}
+
+		/// <summary>
+		/// 返回错误信息
+		/// </summary>
+		/// <param name="error">错误提示</param>
+		/// <param name="code">错误码</param>
+		/// <param name="data">错误下返回的业务信息</param>
+		/// <returns></returns>
+		protected string ResultError(string error, int code = 0, object data = null, string type = "")
+		{
+			return (new { success = false, msg = error, code = code, data = data, ts = CurrentDateTimeUnix, type = type }).ToJson();
+		}
+		/// <summary>
+		/// 返回提示信息
+		/// </summary>
+		/// <param name="success">操作结果</param>
+		/// <param name="msg">消息提示</param>
+		/// <param name="code">错误码</param>
+		/// <param name="data">错误下返回的业务信息</param>
+		/// <returns></returns>
+		protected string Result(bool success, string msg, int code = 0, object data = null)
+		{
+			return (new { success = success, msg = msg, code = code, data = data, ts = CurrentDateTimeUnix }).ToJson();
+		}
+
+		/// <summary>
+		/// 返回动态对象
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="type">请求类型</param>
+		/// <returns></returns>
+		protected string ResultData(object data, string type = "", int code = 0)
+		{
+			return (new { success = true, type = type, code = code, data = data ?? new List<object>(), ts = CurrentDateTimeUnix }).ToJson();
+		}
+
+		/// <summary>
+		/// 返回对象
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="list">集合</param>
+		/// <param name="totalCount">总数</param>
+		/// <param name="code">业务码</param>
+		/// <param name="additional">附加数据</param>
+		/// <returns></returns>
+		protected string Result<T>(IEnumerable<T> list, int? totalCount = null, int code = 0, object additional = null)
+		{
+			return (new { success = true, code = code, count = totalCount != null ? totalCount : list.Count(), data = list, ts = CurrentDateTimeUnix, additional }).ToJson();
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="dt"></param>
+		/// <param name="totalCount"></param>
+		/// <returns></returns>
+		protected string Result(DataTable dt, int? totalCount = null)
+		{
+			return (new { success = true, count = totalCount != null ? totalCount : dt.Rows.Count, data = dt, ts = CurrentDateTimeUnix }).ToJson();
+		}
+	}
+			]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

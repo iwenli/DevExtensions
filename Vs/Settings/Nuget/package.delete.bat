@@ -1,0 +1,1 @@
+nuget delete [packageid] [version] -Source http://nuget.iwenli.org/nuget -apikey txooo.cc
