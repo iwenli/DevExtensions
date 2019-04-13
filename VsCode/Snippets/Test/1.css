@@ -1,1 +1,6 @@
-#nav {background: red;}
+#nav {
+  background: red;
+}
+.item {
+  background: #000;
+}
