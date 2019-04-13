@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\VsCode",
-    "\\VsCode\\Markdown"
+    "\\VsCode\\Settings",
+    "\\VsCode\\Snippets"
   ],
-  "SelectedNode": "\\VsCode\\Markdown\\vscode-markdown-git.css",
+  "SelectedNode": "\\VsCode\\Snippets\\vscode-javascript-snippets.js",
   "PreviewInSolutionExplorer": false
 }
